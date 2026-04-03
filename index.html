@@ -175,28 +175,28 @@
   <div class="panel-form">
     <div class="field">
       <label for="f-name">Full Name *</label>
-      <input type="text" id="f-name" placeholder="e.g. Ondřej Jel&#237;nek" data-required="true">
+      <input type="text" id="f-name" placeholder="e.g. Jan Novak" data-required="true">
     </div>
     <div class="field">
       <label for="f-title">Title *</label>
-      <input type="text" id="f-title" placeholder="e.g. Founder, Head of Design" data-required="true">
+      <input type="text" id="f-title" placeholder="e.g. Master of the Universe" data-required="true">
     </div>
     <div class="field">
       <label for="f-email">Email *</label>
       <div style="display:flex;align-items:stretch;">
-        <input type="text" id="f-email" placeholder="e.g. ondrej" data-required="true" style="border-right:none;">
+        <input type="text" id="f-email" placeholder="e.g. jan" data-required="true" style="border-right:none;">
         <span class="input-addon" style="border-left:none;">@trau.studio</span>
       </div>
     </div>
     <div class="field">
       <label for="f-phone">Phone *</label>
-      <input type="tel" id="f-phone" placeholder="e.g. +420 721 617 992" data-required="true">
+      <input type="tel" id="f-phone" placeholder="e.g. 420 721 617 992" data-required="true">
     </div>
     <div class="field">
       <label for="f-meeting">Book a Meeting URL</label>
       <div style="display:flex;align-items:stretch;">
         <span class="input-addon" style="border-right:none;">cal.com/</span>
-        <input type="text" id="f-meeting" placeholder="e.g. jan" style="border-left:none;">
+        <input type="text" id="f-meeting" placeholder="e.g. jan/intro20min" style="border-left:none;">
       </div>
     </div>
   </div>
@@ -287,30 +287,31 @@ function getCleanSignatureHTML(s) {
     '</table>';
 }
 
-// === RENDER PREVIEW HTML (forces light or dark explicitly) ===
-function renderPreviewHTML(s, dark, opacity) {
-  var op = opacity || 1;
+// === RENDER PREVIEW HTML (forces light or dark explicitly, supports per-field opacity) ===
+function renderPreviewHTML(s, dark, fieldOpacity) {
   var textColor = dark ? '#FFFFFF' : '#000000';
   var bgColor = dark ? '#1A1A1A' : '#FFFFFF';
   var logoSrc = dark ? logoLightB64 : logoDarkB64;
+  var fo = fieldOpacity || {};
+  function op(field) { return fo[field] !== undefined ? fo[field] : 1; }
 
   var meetingLine = '';
   if (s.meetingUrl && s.meetingUrl.trim() && fullMeetingUrl(s.meetingUrl)) {
     meetingLine =
-      '<tr><td style="padding-top:20px;">' +
-      '<a href="' + escapeHtml(fullMeetingUrl(s.meetingUrl)) + '" style="font-family:' + fontStack + ';font-size:12px;font-weight:700;color:' + textColor + ';text-decoration:none;letter-spacing:-0.14px;line-height:1.3;opacity:' + op + ';">\u2794 Book a meeting</a>' +
+      '<tr><td style="padding-top:20px;opacity:' + op('meetingUrl') + ';">' +
+      '<a href="' + escapeHtml(fullMeetingUrl(s.meetingUrl)) + '" style="font-family:' + fontStack + ';font-size:12px;font-weight:700;color:' + textColor + ';text-decoration:none;letter-spacing:-0.14px;line-height:1.3;">\u2794 Book a meeting</a>' +
       '</td></tr>';
   }
 
   return '<!DOCTYPE html><html><head><meta charset="UTF-8"></head>' +
     '<body style="margin:0;padding:16px;background:' + bgColor + ';">' +
-    '<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;opacity:' + op + ';">' +
+    '<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;">' +
     '<tr><td style="vertical-align:top;">' +
-      '<p style="font-family:' + fontStack + ';font-size:14px;font-weight:700;color:' + textColor + ';margin:0;line-height:1.3;letter-spacing:-0.14px;">' + escapeHtml(s.name) + '</p>' +
-      '<p style="font-family:' + fontStack + ';font-size:14px;font-weight:400;color:' + textColor + ';margin:0;line-height:1.3;letter-spacing:-0.14px;">' + escapeHtml(s.title) + '</p>' +
+      '<p style="font-family:' + fontStack + ';font-size:14px;font-weight:700;color:' + textColor + ';margin:0;line-height:1.3;letter-spacing:-0.14px;opacity:' + op('name') + ';">' + escapeHtml(s.name) + '</p>' +
+      '<p style="font-family:' + fontStack + ';font-size:14px;font-weight:400;color:' + textColor + ';margin:0;line-height:1.3;letter-spacing:-0.14px;opacity:' + op('title') + ';">' + escapeHtml(s.title) + '</p>' +
       '<p style="font-family:' + fontStack + ';font-size:14px;margin:0;line-height:1.3;">&nbsp;</p>' +
-      '<p style="font-family:' + fontStack + ';font-size:14px;font-weight:400;color:' + textColor + ';margin:0;line-height:1.3;letter-spacing:-0.14px;"><a href="mailto:' + escapeHtml(fullEmail(s.email)) + '" style="color:' + textColor + ';text-decoration:none;">' + escapeHtml(fullEmail(s.email)) + '</a></p>' +
-      '<p style="font-family:' + fontStack + ';font-size:14px;font-weight:400;color:' + textColor + ';margin:0;line-height:1.3;letter-spacing:-0.14px;"><a href="tel:' + escapeHtml(s.phone.replace(/\s/g, '')) + '" style="color:' + textColor + ';text-decoration:none;">' + escapeHtml(s.phone) + '</a></p>' +
+      '<p style="font-family:' + fontStack + ';font-size:14px;font-weight:400;color:' + textColor + ';margin:0;line-height:1.3;letter-spacing:-0.14px;opacity:' + op('email') + ';"><a href="mailto:' + escapeHtml(fullEmail(s.email)) + '" style="color:' + textColor + ';text-decoration:none;">' + escapeHtml(fullEmail(s.email)) + '</a></p>' +
+      '<p style="font-family:' + fontStack + ';font-size:14px;font-weight:400;color:' + textColor + ';margin:0;line-height:1.3;letter-spacing:-0.14px;opacity:' + op('phone') + ';"><a href="tel:' + escapeHtml(s.phone.replace(/\s/g, '')) + '" style="color:' + textColor + ';text-decoration:none;">' + escapeHtml(s.phone) + '</a></p>' +
     '</td></tr>' +
     '<tr><td style="padding-top:20px;">' +
       '<a href="https://trau.studio" target="_blank" style="text-decoration:none;"><img src="' + logoSrc + '" width="173" alt="TRAU" style="display:block;width:173px;height:auto;border:0;" /></a>' +
@@ -349,12 +350,20 @@ var previewFrame = document.getElementById('previewFrame');
 var placeholder = { name: 'Jan Novak', title: 'Master of the Universe', email: 'jan', phone: '+420 721 617 992', meetingUrl: '' };
 
 function renderPreview() {
-  var hasContent = state.name || state.title || state.email || state.phone;
-  if (hasContent) {
-    iframe.srcdoc = renderPreviewHTML(state, previewDark);
-  } else {
-    iframe.srcdoc = renderPreviewHTML(placeholder, previewDark, 0.6);
+  var merged = {};
+  var opacities = {};
+  var fields = ['name', 'title', 'email', 'phone', 'meetingUrl'];
+  for (var i = 0; i < fields.length; i++) {
+    var f = fields[i];
+    if (state[f] && state[f].trim()) {
+      merged[f] = state[f];
+      opacities[f] = 1;
+    } else {
+      merged[f] = placeholder[f];
+      opacities[f] = 0.6;
+    }
   }
+  iframe.srcdoc = renderPreviewHTML(merged, previewDark, opacities);
   iframe.onload = function() {
     try {
       var h = iframe.contentDocument.body.scrollHeight;
@@ -373,19 +382,14 @@ var inputs = {
 };
 // === PHONE FORMATTING ===
 function formatPhone(val) {
-  var prefix = '';
-  var digits = val;
-  if (digits.charAt(0) === '+') {
-    prefix = '+';
-    digits = digits.substring(1);
-  }
-  digits = digits.replace(/\D/g, '');
-  var formatted = '';
+  var digits = val.replace(/\D/g, '').substring(0, 12);
+  if (!digits) return '+';
+  var formatted = '+';
   for (var i = 0; i < digits.length; i++) {
     if (i > 0 && i % 3 === 0) formatted += ' ';
     formatted += digits[i];
   }
-  return prefix + formatted;
+  return formatted;
 }
 
 Object.keys(inputs).forEach(function(key) {
@@ -413,39 +417,79 @@ Object.keys(inputs).forEach(function(key) {
   });
   if (el.dataset.required === 'true') {
     el.addEventListener('blur', function() {
-      el.classList.toggle('invalid', el.value.trim() === '');
+      if (key === 'phone') {
+        var digitCount = el.value.replace(/\D/g, '').length;
+        el.classList.toggle('invalid', digitCount !== 12);
+      } else {
+        el.classList.toggle('invalid', el.value.trim() === '');
+      }
     });
     el.addEventListener('input', function() {
-      if (el.value.trim() !== '') el.classList.remove('invalid');
+      if (key === 'phone') {
+        var digitCount = el.value.replace(/\D/g, '').length;
+        if (digitCount === 12) el.classList.remove('invalid');
+      } else {
+        if (el.value.trim() !== '') el.classList.remove('invalid');
+      }
+    });
+  }
+  if (key === 'phone') {
+    el.addEventListener('focus', function() {
+      if (!el.value) { el.value = '+'; }
+    });
+    el.addEventListener('blur', function() {
+      if (el.value === '+') { el.value = ''; state.phone = ''; renderPreview(); }
     });
   }
 });
 
 // === COPY BUTTONS ===
-function copyToClipboard(text, btn) {
+function showCopied(btn) {
   var orig = btn.textContent;
-  function ok() {
-    btn.textContent = '\u2713 Copied!';
-    btn.classList.add('copied');
-    setTimeout(function() { btn.textContent = orig; btn.classList.remove('copied'); }, 1500);
-  }
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).then(ok).catch(function() { fbCopy(text, ok); });
-  } else { fbCopy(text, ok); }
+  btn.textContent = '\u2713 Copied!';
+  btn.classList.add('copied');
+  setTimeout(function() { btn.textContent = orig; btn.classList.remove('copied'); }, 1500);
 }
-function fbCopy(text, cb) {
-  var ta = document.createElement('textarea');
-  ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
-  document.body.appendChild(ta); ta.select();
-  try { document.execCommand('copy'); cb(); } catch(e) {}
-  document.body.removeChild(ta);
+
+function copyHtmlAsRich(html, btn) {
+  if (navigator.clipboard && navigator.clipboard.write && typeof ClipboardItem !== 'undefined') {
+    var blob = new Blob([html], { type: 'text/html' });
+    var item = new ClipboardItem({ 'text/html': blob, 'text/plain': new Blob([html], { type: 'text/plain' }) });
+    navigator.clipboard.write([item]).then(function() { showCopied(btn); }).catch(function() { fbCopyHtml(html, btn); });
+  } else {
+    fbCopyHtml(html, btn);
+  }
+}
+
+function fbCopyHtml(html, btn) {
+  var listener = function(e) {
+    e.clipboardData.setData('text/html', html);
+    e.clipboardData.setData('text/plain', html);
+    e.preventDefault();
+  };
+  document.addEventListener('copy', listener);
+  document.execCommand('copy');
+  document.removeEventListener('copy', listener);
+  showCopied(btn);
+}
+
+function copyPlainText(text, btn) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function() { showCopied(btn); }).catch(function() {
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); showCopied(btn); } catch(e) {}
+      document.body.removeChild(ta);
+    });
+  }
 }
 
 document.getElementById('btnCopyHtml').addEventListener('click', function() {
-  copyToClipboard(getCleanSignatureHTML(state), this);
+  copyHtmlAsRich(getCleanSignatureHTML(state), this);
 });
 document.getElementById('btnCopyText').addEventListener('click', function() {
-  copyToClipboard(renderPlainText(state), this);
+  copyPlainText(renderPlainText(state), this);
 });
 
 // === PREVIEW DARK/LIGHT TOGGLE ===
