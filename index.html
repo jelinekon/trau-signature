@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TRAU Email Signature Generator</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #F5F5F5;
+    --bg-input: #FAFAFA;
+    --text-primary: #000000;
+    --text-secondary: #6B6B6B;
+    --border: #E5E5E5;
+    --border-focus: #000000;
+    --btn-bg: #000000;
+    --btn-text: #FFFFFF;
+    --accent-bg: #E9E5DA;
+    --accent-border: #DBD5C8;
+  }
+
+  html.dark {
+    --bg-primary: #1A1A1A;
+    --bg-secondary: #2A2A2A;
+    --bg-input: #222222;
+    --text-primary: #E9E5DA;
+    --text-secondary: #8A8780;
+    --border: #333333;
+    --border-focus: #E9E5DA;
+    --btn-bg: #E9E5DA;
+    --btn-text: #000000;
+    --accent-bg: #2A2A2A;
+    --accent-border: #3A3A3A;
+  }
+
+  body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+  }
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .header-logo { height: 18px; width: auto; display: block; }
+  .header-logo-dark { display: none; }
+  .header-logo-light { display: block; }
+  html.dark .header-logo-dark { display: block; }
+  html.dark .header-logo-light { display: none; }
+  .header-title { font-size: 13px; color: var(--text-secondary); font-weight: 400; }
+  .theme-toggle {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    font-size: 16px;
+    width: 36px; height: 36px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 0;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .theme-toggle:hover { border-color: var(--text-secondary); }
+
+  .main { display: flex; min-height: calc(100vh - 77px); }
+  .panel-form {
+    width: 50%; padding: 40px 32px;
+    border-right: 1px solid var(--border);
+  }
+  .panel-preview { width: 50%; padding: 40px 32px; }
+
+  .field { margin-bottom: 24px; }
+  .field label {
+    display: block; text-transform: uppercase; font-size: 11px;
+    letter-spacing: 0.1em; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500;
+  }
+  .field input {
+    width: 100%; padding: 10px 12px; font-size: 14px;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background: var(--bg-input); color: var(--text-primary);
+    border: 1px solid var(--border); border-radius: 0; outline: none;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+  }
+  .field input:focus { border-color: var(--border-focus); }
+  .field input.invalid { border-bottom: 2px solid #D93025; }
+  .field input::placeholder { color: var(--text-secondary); opacity: 0.6; }
+
+  .input-addon {
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    font-size: 14px;
+    color: var(--text-secondary);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 0;
+    white-space: nowrap;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+  }
+
+  .preview-header {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;
+  }
+  .preview-label {
+    text-transform: uppercase; font-size: 11px; letter-spacing: 0.1em;
+    color: var(--text-secondary); font-weight: 500;
+  }
+  .preview-mode-toggle { display: flex; border: 1px solid var(--border); }
+  .preview-mode-btn {
+    padding: 5px 12px; font-size: 11px;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    text-transform: uppercase; letter-spacing: 0.06em; font-weight: 500;
+    background: none; color: var(--text-secondary); border: none; border-radius: 0; cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+  .preview-mode-btn.active { background: var(--text-primary); color: var(--bg-primary); }
+
+  .preview-frame {
+    border: 1px solid var(--border); min-height: 180px; margin-bottom: 16px;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .preview-frame.light-bg { background: #FFFFFF; }
+  .preview-frame.dark-bg { background: #1A1A1A; }
+  .preview-frame iframe { width: 100%; min-height: 180px; border: none; display: block; }
+
+  .preview-note { font-size: 11px; color: var(--text-secondary); margin-bottom: 24px; }
+  .btn-row { display: flex; gap: 12px; }
+  .btn {
+    padding: 10px 20px; font-size: 12px;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    text-transform: uppercase; letter-spacing: 0.08em; font-weight: 500;
+    background: var(--btn-bg); color: var(--btn-text); border: none; border-radius: 0; cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+  .btn-secondary {
+    background: transparent;
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { opacity: 1; border-color: var(--text-secondary); }
+  .btn:hover { opacity: 0.85; }
+  .btn.copied { opacity: 0.7; }
+
+  @media (max-width: 768px) {
+    .main { flex-direction: column; }
+    .panel-form, .panel-preview { width: 100%; border-right: none; }
+    .panel-form { border-bottom: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <img class="header-logo header-logo-light" src="./images/TRAU_logo-positive.svg" alt="TRAU">
+    <img class="header-logo header-logo-dark" src="./images/TRAU_logo-negative.svg" alt="TRAU">
+    <span class="header-title">Email Signature Generator</span>
+  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle app theme">&#9728;</button>
+</div>
+
+<div class="main">
+  <div class="panel-form">
+    <div class="field">
+      <label for="f-name">Full Name *</label>
+      <input type="text" id="f-name" placeholder="e.g. Ondřej Jel&#237;nek" data-required="true">
+    </div>
+    <div class="field">
+      <label for="f-title">Title *</label>
+      <input type="text" id="f-title" placeholder="e.g. Founder, Head of Design" data-required="true">
+    </div>
+    <div class="field">
+      <label for="f-email">Email *</label>
+      <div style="display:flex;align-items:stretch;">
+        <input type="text" id="f-email" placeholder="e.g. ondrej" data-required="true" style="border-right:none;">
+        <span class="input-addon" style="border-left:none;">@trau.studio</span>
+      </div>
+    </div>
+    <div class="field">
+      <label for="f-phone">Phone *</label>
+      <input type="tel" id="f-phone" placeholder="e.g. +420 721 617 992" data-required="true">
+    </div>
+    <div class="field">
+      <label for="f-meeting">Book a Meeting URL</label>
+      <div style="display:flex;align-items:stretch;">
+        <span class="input-addon" style="border-right:none;">cal.com/</span>
+        <input type="text" id="f-meeting" placeholder="e.g. jan" style="border-left:none;">
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-preview">
+    <div class="preview-header">
+      <span class="preview-label">Preview</span>
+      <div class="preview-mode-toggle">
+        <button class="preview-mode-btn active" id="btnLight" title="Light mode preview">&#9728;</button>
+        <button class="preview-mode-btn" id="btnDark" title="Dark mode preview">&#9790;</button>
+      </div>
+    </div>
+    <div class="preview-frame light-bg" id="previewFrame">
+      <iframe id="previewIframe" title="Signature preview"></iframe>
+    </div>
+    <div class="preview-note">Test in Gmail and Outlook before deploying</div>
+    <div class="btn-row">
+      <button class="btn" id="btnCopyHtml">Copy HTML</button>
+      <button class="btn btn-secondary" id="btnCopyText">Copy Plain Text</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// === STATE ===
+var state = { name: '', title: '', email: '', phone: '', meetingUrl: '' };
+var previewDark = false;
+
+// === APP THEME TOGGLE ===
+var themeBtn = document.getElementById('themeToggle');
+function setAppTheme(dark) {
+  document.documentElement.classList.toggle('dark', dark);
+  themeBtn.innerHTML = dark ? '&#9728;' : '&#9790;';
+  themeBtn.title = dark ? 'Switch to light mode' : 'Switch to dark mode';
+}
+themeBtn.addEventListener('click', function() {
+  var isDark = document.documentElement.classList.contains('dark');
+  setAppTheme(!isDark);
+});
+
+// === LOGO SVG INLINE ===
+var logoDarkSVG = '<svg width="506" height="72" viewBox="0 0 506 72" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.4531 71.4121C6.60828 63.4279 0 51.1028 0 35.7158C0 20.3288 6.60828 7.98429 11.4531 9.15527e-05H14.5537C8.93377 9.43772 3.1588 21.2784 3.1588 35.7158C3.1588 50.1532 8.91439 61.9939 14.5343 71.4315H11.4337L11.4531 71.4121Z" fill="black"/><g clip-path="url(#clip0_4031_44722)"><path d="M372.794 42.0753C372.794 47.7843 377.423 52.3977 383.116 52.3977H432.29C437.999 52.3977 442.613 47.7688 442.613 42.0753V8.7165C442.613 8.31533 442.937 7.97588 443.353 7.97588H456.931C457.333 7.97588 457.672 8.2999 457.672 8.7165V41.7204C457.672 53.9407 447.766 63.8465 435.546 63.8465H379.876C367.656 63.8465 357.75 53.9407 357.75 41.7204V8.7165C357.75 8.31533 358.074 7.97588 358.491 7.97588H372.069C372.47 7.97588 372.809 8.2999 372.809 8.7165V42.0753H372.794Z" fill="black"/><path d="M39.7512 7.97585H144.904C145.66 7.97585 146.046 8.25358 146.046 8.80904V18.0585C146.046 18.614 145.66 18.8917 144.904 18.8917H99.9575V63.075C99.9575 63.6304 99.5717 63.9082 98.8157 63.9082H85.8548C85.0988 63.9082 84.713 63.6304 84.713 63.075V18.8917H39.7512C38.9951 18.8917 38.6094 18.614 38.6094 18.0585V8.80904C38.6094 8.25358 38.9951 7.97585 39.7512 7.97585Z" fill="black"/><path d="M356.498 62.9052L314.607 8.53131C314.313 8.14557 313.85 7.97585 313.233 7.97585H295.227C294.61 7.97585 294.162 8.14557 293.854 8.53131L251.978 62.9052C251.515 63.4607 251.901 63.9082 252.811 63.9082H267.454C268.071 63.9082 268.518 63.7384 268.827 63.3527L274.706 55.6842L304.222 17.2027L333.739 55.6842L339.618 63.3527C339.926 63.7384 340.374 63.9082 340.991 63.9082H355.634C356.544 63.9082 356.93 63.4607 356.467 62.9052H356.498Z" fill="black"/><path d="M250.442 24.7633C250.442 15.4746 240.05 7.97585 227.383 7.97585H155.111C154.354 7.97585 153.969 8.25358 153.969 8.80904V63.075C153.969 63.6304 154.354 63.9082 155.111 63.9082H168.087C168.843 63.9082 169.229 63.6304 169.229 63.075V41.5352V18.2057H227.383C231.888 18.2057 235.005 21.6156 235.005 24.7478C235.005 27.88 231.873 31.29 227.383 31.29H198.814C198.192 31.29 197.873 32.037 198.304 32.4864L227.907 63.3373C228.216 63.723 228.663 63.8927 229.281 63.8927H243.923C244.834 63.8927 245.219 63.4453 244.757 62.8898L224.127 41.5198H227.367C240.035 41.5198 250.426 34.021 250.426 24.7324L250.442 24.7633Z" fill="black"/></g><path d="M491.599 71.4315C497.687 63.4473 505.991 51.1222 505.991 35.7158C505.991 20.3094 497.687 7.98429 491.599 9.15527e-05H487.703C494.765 9.43772 501.998 21.2784 501.998 35.7158C501.998 50.1532 494.765 61.9939 487.703 71.4315H491.599Z" fill="black"/><defs><clipPath id="clip0_4031_44722"><rect width="419.18" height="55.9135" fill="white" transform="translate(38.5391 7.9305)"/></clipPath></defs></svg>';
+
+var logoLightSVG = '<svg width="506" height="72" viewBox="0 0 506 72" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.4531 71.4121C6.60828 63.4279 0 51.1028 0 35.7158C0 20.3288 6.60828 7.98429 11.4531 9.15527e-05H14.5537C8.93377 9.43772 3.1588 21.2784 3.1588 35.7158C3.1588 50.1532 8.91439 61.9939 14.5343 71.4315H11.4337L11.4531 71.4121Z" fill="white"/><g clip-path="url(#clip0_4033_45707)"><path d="M372.794 42.0753C372.794 47.7842 377.423 52.3977 383.116 52.3977H432.29C437.999 52.3977 442.613 47.7688 442.613 42.0753V8.71648C442.613 8.31531 442.937 7.97586 443.353 7.97586H456.931C457.333 7.97586 457.672 8.29988 457.672 8.71648V41.7204C457.672 53.9406 447.766 63.8465 435.546 63.8465H379.876C367.656 63.8465 357.75 53.9406 357.75 41.7204V8.71648C357.75 8.31531 358.074 7.97586 358.491 7.97586H372.069C372.47 7.97586 372.809 8.29988 372.809 8.71648V42.0753H372.794Z" fill="white"/><path d="M39.7512 7.97583H144.904C145.66 7.97583 146.046 8.25356 146.046 8.80903V18.0585C146.046 18.614 145.66 18.8917 144.904 18.8917H99.9575V63.0749C99.9575 63.6304 99.5717 63.9081 98.8157 63.9081H85.8548C85.0988 63.9081 84.713 63.6304 84.713 63.0749V18.8917H39.7512C38.9951 18.8917 38.6094 18.614 38.6094 18.0585V8.80903C38.6094 8.25356 38.9951 7.97583 39.7512 7.97583Z" fill="white"/><path d="M356.498 62.9052L314.607 8.5313C314.313 8.14556 313.85 7.97583 313.233 7.97583H295.227C294.61 7.97583 294.162 8.14556 293.854 8.5313L251.978 62.9052C251.515 63.4607 251.901 63.9081 252.811 63.9081H267.454C268.071 63.9081 268.518 63.7384 268.827 63.3527L274.706 55.6842L304.222 17.2027L333.739 55.6842L339.618 63.3527C339.926 63.7384 340.374 63.9081 340.991 63.9081H355.634C356.544 63.9081 356.93 63.4607 356.467 62.9052H356.498Z" fill="white"/><path d="M250.442 24.7632C250.442 15.4746 240.05 7.97583 227.383 7.97583H155.111C154.354 7.97583 153.969 8.25356 153.969 8.80903V63.0749C153.969 63.6304 154.354 63.9081 155.111 63.9081H168.087C168.843 63.9081 169.229 63.6304 169.229 63.0749V41.5352V18.2057H227.383C231.888 18.2057 235.005 21.6156 235.005 24.7478C235.005 27.88 231.873 31.29 227.383 31.29H198.814C198.192 31.29 197.873 32.037 198.304 32.4864L227.907 63.3373C228.216 63.723 228.663 63.8927 229.281 63.8927H243.923C244.834 63.8927 245.219 63.4453 244.757 62.8898L224.127 41.5198H227.367C240.035 41.5198 250.426 34.021 250.426 24.7324L250.442 24.7632Z" fill="white"/></g><path d="M491.599 71.4315C497.687 63.4473 505.991 51.1222 505.991 35.7158C505.991 20.3094 497.687 7.98429 491.599 9.15527e-05H487.703C494.765 9.43772 501.998 21.2784 501.998 35.7158C501.998 50.1532 494.765 61.9939 487.703 71.4315H491.599Z" fill="white"/><defs><clipPath id="clip0_4033_45707"><rect width="419.18" height="55.9135" fill="white" transform="translate(38.5391 7.93048)"/></clipPath></defs></svg>';
+
+var logoDarkB64 = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(logoDarkSVG)));
+var logoLightB64 = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(logoLightSVG)));
+
+// === PUBLIC LOGO URLs (for copied signature — Gmail needs real URLs, not base64) ===
+var logoDarkUrl = 'https://raw.githubusercontent.com/jelinekon/trau-assets/main/TRAU_logo-positive.png';
+var logoLightUrl = 'https://raw.githubusercontent.com/jelinekon/trau-assets/main/TRAU_logo-negative.png';
+
+// === FONT STACK (matches reference: Inter with fallbacks) ===
+var fontStack = "Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif";
+
+// === SIGNATURE HTML (for copying — uses @media query for dark mode) ===
+function getCleanSignatureHTML(s) {
+  var meetingLine = '';
+  if (s.meetingUrl && s.meetingUrl.trim() && fullMeetingUrl(s.meetingUrl)) {
+    meetingLine =
+      '<tr><td style="padding-top:20px;">' +
+      '<a href="' + escapeHtml(fullMeetingUrl(s.meetingUrl)) + '" class="trau-sig-link" style="font-family:' + fontStack + ';font-size:12px;font-weight:700;color:#000000;text-decoration:none;letter-spacing:-0.14px;line-height:1.3;">\u2794 Book a meeting</a>' +
+      '</td></tr>';
+  }
+
+  return '<style>@media (prefers-color-scheme: dark) {' +
+    '.trau-sig-name { color: #FFFFFF !important; }' +
+    '.trau-sig-text { color: #FFFFFF !important; }' +
+    '.trau-sig-link { color: #FFFFFF !important; }' +
+    '.trau-logo-light { display: block !important; }' +
+    '.trau-logo-dark { display: none !important; }' +
+    '}</style>' +
+    '<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;">' +
+    '<tr><td style="vertical-align:top;">' +
+      '<p class="trau-sig-name" style="font-family:' + fontStack + ';font-size:14px;font-weight:700;color:#000000;margin:0;line-height:1.3;letter-spacing:-0.14px;">' + escapeHtml(s.name) + '</p>' +
+      '<p class="trau-sig-text" style="font-family:' + fontStack + ';font-size:14px;font-weight:400;color:#000000;margin:0;line-height:1.3;letter-spacing:-0.14px;">' + escapeHtml(s.title) + '</p>' +
+      '<p style="font-family:' + fontStack + ';font-size:14px;margin:0;line-height:1.3;">&nbsp;</p>' +
+      '<p class="trau-sig-text" style="font-family:' + fontStack + ';font-size:14px;font-weight:400;color:#000000;margin:0;line-height:1.3;letter-spacing:-0.14px;"><a href="mailto:' + escapeHtml(fullEmail(s.email)) + '" class="trau-sig-text" style="color:#000000;text-decoration:none;">' + escapeHtml(fullEmail(s.email)) + '</a></p>' +
+      '<p class="trau-sig-text" style="font-family:' + fontStack + ';font-size:14px;font-weight:400;color:#000000;margin:0;line-height:1.3;letter-spacing:-0.14px;"><a href="tel:' + escapeHtml(s.phone.replace(/\s/g, '')) + '" class="trau-sig-text" style="color:#000000;text-decoration:none;">' + escapeHtml(s.phone) + '</a></p>' +
+    '</td></tr>' +
+    '<tr><td style="padding-top:20px;">' +
+      '<a href="https://trau.studio" target="_blank" style="text-decoration:none;">' +
+      '<img class="trau-logo-dark" src="' + logoDarkUrl + '" width="173" alt="TRAU" style="display:block;width:173px;height:auto;border:0;" />' +
+      '<img class="trau-logo-light" src="' + logoLightUrl + '" width="173" alt="TRAU" style="display:none;mso-hide:all;width:173px;height:auto;border:0;" />' +
+      '</a>' +
+    '</td></tr>' +
+    meetingLine +
+    '</table>';
+}
+
+// === RENDER PREVIEW HTML (forces light or dark explicitly) ===
+function renderPreviewHTML(s, dark, opacity) {
+  var op = opacity || 1;
+  var textColor = dark ? '#FFFFFF' : '#000000';
+  var bgColor = dark ? '#1A1A1A' : '#FFFFFF';
+  var logoSrc = dark ? logoLightB64 : logoDarkB64;
+
+  var meetingLine = '';
+  if (s.meetingUrl && s.meetingUrl.trim() && fullMeetingUrl(s.meetingUrl)) {
+    meetingLine =
+      '<tr><td style="padding-top:20px;">' +
+      '<a href="' + escapeHtml(fullMeetingUrl(s.meetingUrl)) + '" style="font-family:' + fontStack + ';font-size:12px;font-weight:700;color:' + textColor + ';text-decoration:none;letter-spacing:-0.14px;line-height:1.3;opacity:' + op + ';">\u2794 Book a meeting</a>' +
+      '</td></tr>';
+  }
+
+  return '<!DOCTYPE html><html><head><meta charset="UTF-8"></head>' +
+    '<body style="margin:0;padding:16px;background:' + bgColor + ';">' +
+    '<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;opacity:' + op + ';">' +
+    '<tr><td style="vertical-align:top;">' +
+      '<p style="font-family:' + fontStack + ';font-size:14px;font-weight:700;color:' + textColor + ';margin:0;line-height:1.3;letter-spacing:-0.14px;">' + escapeHtml(s.name) + '</p>' +
+      '<p style="font-family:' + fontStack + ';font-size:14px;font-weight:400;color:' + textColor + ';margin:0;line-height:1.3;letter-spacing:-0.14px;">' + escapeHtml(s.title) + '</p>' +
+      '<p style="font-family:' + fontStack + ';font-size:14px;margin:0;line-height:1.3;">&nbsp;</p>' +
+      '<p style="font-family:' + fontStack + ';font-size:14px;font-weight:400;color:' + textColor + ';margin:0;line-height:1.3;letter-spacing:-0.14px;"><a href="mailto:' + escapeHtml(fullEmail(s.email)) + '" style="color:' + textColor + ';text-decoration:none;">' + escapeHtml(fullEmail(s.email)) + '</a></p>' +
+      '<p style="font-family:' + fontStack + ';font-size:14px;font-weight:400;color:' + textColor + ';margin:0;line-height:1.3;letter-spacing:-0.14px;"><a href="tel:' + escapeHtml(s.phone.replace(/\s/g, '')) + '" style="color:' + textColor + ';text-decoration:none;">' + escapeHtml(s.phone) + '</a></p>' +
+    '</td></tr>' +
+    '<tr><td style="padding-top:20px;">' +
+      '<a href="https://trau.studio" target="_blank" style="text-decoration:none;"><img src="' + logoSrc + '" width="173" alt="TRAU" style="display:block;width:173px;height:auto;border:0;" /></a>' +
+    '</td></tr>' +
+    meetingLine +
+    '</table>' +
+    '</body></html>';
+}
+
+// === RENDER PLAIN TEXT ===
+function renderPlainText(s) {
+  var lines = [s.name, s.title, '', fullEmail(s.email), s.phone];
+  if (s.meetingUrl && s.meetingUrl.trim()) {
+    lines.push('');
+    lines.push('Book a meeting: ' + fullMeetingUrl(s.meetingUrl));
+  }
+  lines.push('');
+  lines.push('trau.studio');
+  return lines.join('\n');
+}
+
+// === HELPERS ===
+function fullEmail(val) { return val ? val.trim() + '@trau.studio' : ''; }
+function fullMeetingUrl(val) { return val && val.trim() ? 'https://cal.com/' + val.trim() : ''; }
+
+function escapeHtml(str) {
+  var d = document.createElement('div');
+  d.appendChild(document.createTextNode(str));
+  return d.innerHTML;
+}
+
+// === LIVE PREVIEW ===
+var iframe = document.getElementById('previewIframe');
+var previewFrame = document.getElementById('previewFrame');
+
+var placeholder = { name: 'Jan Novak', title: 'Master of the Universe', email: 'jan', phone: '+420 721 617 992', meetingUrl: '' };
+
+function renderPreview() {
+  var hasContent = state.name || state.title || state.email || state.phone;
+  if (hasContent) {
+    iframe.srcdoc = renderPreviewHTML(state, previewDark);
+  } else {
+    iframe.srcdoc = renderPreviewHTML(placeholder, previewDark, 0.6);
+  }
+  iframe.onload = function() {
+    try {
+      var h = iframe.contentDocument.body.scrollHeight;
+      iframe.style.height = Math.max(h + 8, 180) + 'px';
+    } catch(e) {}
+  };
+}
+
+// === WIRE INPUTS ===
+var inputs = {
+  name: document.getElementById('f-name'),
+  title: document.getElementById('f-title'),
+  email: document.getElementById('f-email'),
+  phone: document.getElementById('f-phone'),
+  meetingUrl: document.getElementById('f-meeting')
+};
+// === PHONE FORMATTING ===
+function formatPhone(val) {
+  var prefix = '';
+  var digits = val;
+  if (digits.charAt(0) === '+') {
+    prefix = '+';
+    digits = digits.substring(1);
+  }
+  digits = digits.replace(/\D/g, '');
+  var formatted = '';
+  for (var i = 0; i < digits.length; i++) {
+    if (i > 0 && i % 3 === 0) formatted += ' ';
+    formatted += digits[i];
+  }
+  return prefix + formatted;
+}
+
+Object.keys(inputs).forEach(function(key) {
+  var el = inputs[key];
+  el.addEventListener('input', function() {
+    if (key === 'phone') {
+      var cursor = el.selectionStart;
+      var before = el.value;
+      var formatted = formatPhone(before);
+      if (formatted !== before) {
+        var digitsBefore = before.substring(0, cursor).replace(/\s/g, '').length;
+        el.value = formatted;
+        var newPos = 0, count = 0;
+        for (newPos = 0; newPos < formatted.length; newPos++) {
+          if (formatted[newPos] !== ' ') count++;
+          if (count === digitsBefore) { newPos++; break; }
+        }
+        el.setSelectionRange(newPos, newPos);
+      }
+      state[key] = formatted;
+    } else {
+      state[key] = el.value;
+    }
+    renderPreview();
+  });
+  if (el.dataset.required === 'true') {
+    el.addEventListener('blur', function() {
+      el.classList.toggle('invalid', el.value.trim() === '');
+    });
+    el.addEventListener('input', function() {
+      if (el.value.trim() !== '') el.classList.remove('invalid');
+    });
+  }
+});
+
+// === COPY BUTTONS ===
+function copyToClipboard(text, btn) {
+  var orig = btn.textContent;
+  function ok() {
+    btn.textContent = '\u2713 Copied!';
+    btn.classList.add('copied');
+    setTimeout(function() { btn.textContent = orig; btn.classList.remove('copied'); }, 1500);
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(ok).catch(function() { fbCopy(text, ok); });
+  } else { fbCopy(text, ok); }
+}
+function fbCopy(text, cb) {
+  var ta = document.createElement('textarea');
+  ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); cb(); } catch(e) {}
+  document.body.removeChild(ta);
+}
+
+document.getElementById('btnCopyHtml').addEventListener('click', function() {
+  copyToClipboard(getCleanSignatureHTML(state), this);
+});
+document.getElementById('btnCopyText').addEventListener('click', function() {
+  copyToClipboard(renderPlainText(state), this);
+});
+
+// === PREVIEW DARK/LIGHT TOGGLE ===
+var btnLight = document.getElementById('btnLight');
+var btnDark = document.getElementById('btnDark');
+
+function setPreviewMode(dark) {
+  previewDark = dark;
+  previewFrame.className = 'preview-frame ' + (dark ? 'dark-bg' : 'light-bg');
+  btnDark.classList.toggle('active', dark);
+  btnLight.classList.toggle('active', !dark);
+  renderPreview();
+}
+
+btnLight.addEventListener('click', function() { setPreviewMode(false); });
+btnDark.addEventListener('click', function() { setPreviewMode(true); });
+
+// === INIT ===
+renderPreview();
+</script>
+</body>
+</html>
