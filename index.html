@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TRAU Email Signature Generator</title>
+<link rel="icon" type="image/png" sizes="32x32" href="https://www.datocms-assets.com/55952/1638362245-traufavicon.png?auto=format&h=32&w=32">
+<link rel="icon" type="image/png" sizes="16x16" href="https://www.datocms-assets.com/55952/1638362245-traufavicon.png?auto=format&h=16&w=16">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -69,7 +71,7 @@
     width: 36px; height: 36px;
     cursor: pointer;
     display: flex; align-items: center; justify-content: center;
-    border-radius: 0;
+    border-radius: 50%;
     transition: border-color 0.2s, color 0.2s;
   }
   .theme-toggle:hover { border-color: var(--text-secondary); }
@@ -90,7 +92,7 @@
     width: 100%; padding: 10px 12px; font-size: 14px;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     background: var(--bg-input); color: var(--text-primary);
-    border: 1px solid var(--border); border-radius: 0; outline: none;
+    border: 1px solid var(--border); border-radius: 4px; outline: none;
     transition: background 0.2s, color 0.2s, border-color 0.2s;
   }
   .field input:focus { border-color: var(--border-focus); }
@@ -105,7 +107,7 @@
     color: var(--text-secondary);
     background: var(--bg-secondary);
     border: 1px solid var(--border);
-    border-radius: 0;
+    border-radius: 4px;
     white-space: nowrap;
     transition: background 0.2s, color 0.2s, border-color 0.2s;
   }
@@ -117,7 +119,7 @@
     text-transform: uppercase; font-size: 11px; letter-spacing: 0.1em;
     color: var(--text-secondary); font-weight: 500;
   }
-  .preview-mode-toggle { display: flex; border: 1px solid var(--border); }
+  .preview-mode-toggle { display: flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
   .preview-mode-btn {
     padding: 5px 12px; font-size: 11px;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -128,7 +130,7 @@
   .preview-mode-btn.active { background: var(--text-primary); color: var(--bg-primary); }
 
   .preview-frame {
-    border: 1px solid var(--border); min-height: 180px; margin-bottom: 16px;
+    border: 1px solid var(--border); border-radius: 4px; overflow: hidden; min-height: 180px; margin-bottom: 16px;
     transition: background 0.2s, border-color 0.2s;
   }
   .preview-frame.light-bg { background: #FFFFFF; }
@@ -141,13 +143,14 @@
     padding: 10px 20px; font-size: 12px;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     text-transform: uppercase; letter-spacing: 0.08em; font-weight: 500;
-    background: var(--btn-bg); color: var(--btn-text); border: none; border-radius: 0; cursor: pointer;
+    background: var(--btn-bg); color: var(--btn-text); border: none; border-radius: 999px; cursor: pointer;
     transition: background 0.2s, color 0.2s;
   }
   .btn-secondary {
     background: transparent;
     color: var(--text-primary);
     border: 1px solid var(--border);
+    border-radius: 999px;
   }
   .btn-secondary:hover { opacity: 1; border-color: var(--text-secondary); }
   .btn:hover { opacity: 0.85; }
@@ -179,24 +182,24 @@
     </div>
     <div class="field">
       <label for="f-title">Title *</label>
-      <input type="text" id="f-title" placeholder="e.g. Master of the Universe" data-required="true">
+      <input type="text" id="f-title" placeholder="e.g. UX/UI Designer" data-required="true">
     </div>
     <div class="field">
       <label for="f-email">Email *</label>
       <div style="display:flex;align-items:stretch;">
-        <input type="text" id="f-email" placeholder="e.g. jan" data-required="true" style="border-right:none;">
-        <span class="input-addon" style="border-left:none;">@trau.studio</span>
+        <input type="text" id="f-email" placeholder="e.g. jan" data-required="true" style="border-right:none;border-radius:4px 0 0 4px;">
+        <span class="input-addon" style="border-left:none;border-radius:0 4px 4px 0;">@trau.studio</span>
       </div>
     </div>
     <div class="field">
       <label for="f-phone">Phone *</label>
-      <input type="tel" id="f-phone" placeholder="e.g. 420 721 617 992" data-required="true">
+      <input type="tel" id="f-phone" placeholder="e.g. 420 123 456 789" data-required="true">
     </div>
     <div class="field">
       <label for="f-meeting">Book a Meeting URL</label>
       <div style="display:flex;align-items:stretch;">
-        <span class="input-addon" style="border-right:none;">cal.com/</span>
-        <input type="text" id="f-meeting" placeholder="e.g. jan/intro20min" style="border-left:none;">
+        <span class="input-addon" style="border-right:none;border-radius:4px 0 0 4px;">cal.com/</span>
+        <input type="text" id="f-meeting" placeholder="e.g. novakjan/trau-intro" style="border-left:none;border-radius:0 4px 4px 0;">
       </div>
     </div>
   </div>
@@ -273,7 +276,7 @@ function getCleanSignatureHTML(s) {
     '<tr><td style="vertical-align:top;">' +
       '<p class="trau-sig-name" style="font-family:' + fontStack + ';font-size:14px;font-weight:700;color:#000000;margin:0;line-height:1.3;letter-spacing:-0.14px;">' + escapeHtml(s.name) + '</p>' +
       '<p class="trau-sig-text" style="font-family:' + fontStack + ';font-size:14px;font-weight:400;color:#000000;margin:0;line-height:1.3;letter-spacing:-0.14px;">' + escapeHtml(s.title) + '</p>' +
-      '<p style="font-family:' + fontStack + ';font-size:14px;margin:0;line-height:1.3;">&nbsp;</p>' +
+      '<p style="font-size:1px;margin:0;line-height:1px;height:14px;">&nbsp;</p>' +
       '<p class="trau-sig-text" style="font-family:' + fontStack + ';font-size:14px;font-weight:400;color:#000000;margin:0;line-height:1.3;letter-spacing:-0.14px;"><a href="mailto:' + escapeHtml(fullEmail(s.email)) + '" class="trau-sig-text" style="color:#000000;text-decoration:none;">' + escapeHtml(fullEmail(s.email)) + '</a></p>' +
       '<p class="trau-sig-text" style="font-family:' + fontStack + ';font-size:14px;font-weight:400;color:#000000;margin:0;line-height:1.3;letter-spacing:-0.14px;"><a href="tel:' + escapeHtml(s.phone.replace(/\s/g, '')) + '" class="trau-sig-text" style="color:#000000;text-decoration:none;">' + escapeHtml(s.phone) + '</a></p>' +
     '</td></tr>' +
@@ -309,7 +312,7 @@ function renderPreviewHTML(s, dark, fieldOpacity) {
     '<tr><td style="vertical-align:top;">' +
       '<p style="font-family:' + fontStack + ';font-size:14px;font-weight:700;color:' + textColor + ';margin:0;line-height:1.3;letter-spacing:-0.14px;opacity:' + op('name') + ';">' + escapeHtml(s.name) + '</p>' +
       '<p style="font-family:' + fontStack + ';font-size:14px;font-weight:400;color:' + textColor + ';margin:0;line-height:1.3;letter-spacing:-0.14px;opacity:' + op('title') + ';">' + escapeHtml(s.title) + '</p>' +
-      '<p style="font-family:' + fontStack + ';font-size:14px;margin:0;line-height:1.3;">&nbsp;</p>' +
+      '<p style="font-size:1px;margin:0;line-height:1px;height:14px;">&nbsp;</p>' +
       '<p style="font-family:' + fontStack + ';font-size:14px;font-weight:400;color:' + textColor + ';margin:0;line-height:1.3;letter-spacing:-0.14px;opacity:' + op('email') + ';"><a href="mailto:' + escapeHtml(fullEmail(s.email)) + '" style="color:' + textColor + ';text-decoration:none;">' + escapeHtml(fullEmail(s.email)) + '</a></p>' +
       '<p style="font-family:' + fontStack + ';font-size:14px;font-weight:400;color:' + textColor + ';margin:0;line-height:1.3;letter-spacing:-0.14px;opacity:' + op('phone') + ';"><a href="tel:' + escapeHtml(s.phone.replace(/\s/g, '')) + '" style="color:' + textColor + ';text-decoration:none;">' + escapeHtml(s.phone) + '</a></p>' +
     '</td></tr>' +
@@ -347,7 +350,7 @@ function escapeHtml(str) {
 var iframe = document.getElementById('previewIframe');
 var previewFrame = document.getElementById('previewFrame');
 
-var placeholder = { name: 'Jan Novak', title: 'Master of the Universe', email: 'jan', phone: '+420 721 617 992', meetingUrl: '' };
+var placeholder = { name: 'Jan Novak', title: 'UX/UI Designer', email: 'jan', phone: '+420 123 456 789', meetingUrl: '' };
 
 function renderPreview() {
   var merged = {};
@@ -410,6 +413,9 @@ Object.keys(inputs).forEach(function(key) {
         el.setSelectionRange(newPos, newPos);
       }
       state[key] = formatted;
+    } else if (key === 'email') {
+      el.value = el.value.replace(/@/g, '');
+      state[key] = el.value;
     } else {
       state[key] = el.value;
     }
